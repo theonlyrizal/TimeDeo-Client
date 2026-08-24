@@ -9,7 +9,9 @@
  * `request()` unwraps `data` and throws the server's error message otherwise.
  */
 
-const BASE = import.meta.env.VITE_API_BASE || '/api'
+// Local dev: unset -> '/api' (Vite proxy to the PHP server). Production: set
+// VITE_API_BASE to the tunneled backend origin, e.g. https://xxx.trycloudflare.com/timedeo
+const BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '')
 
 async function request(path, { method = 'GET', body, params } = {}) {
   let url = BASE + path
