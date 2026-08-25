@@ -9,12 +9,48 @@
  * `request()` unwraps `data` and throws the server's error message otherwise.
  */
 
-// Local dev: unset -> '/api' (Vite proxy to the PHP server). Production: set
-// VITE_API_BASE to the tunneled backend origin, e.g. https://xxx.trycloudflare.com/timedeo
-const BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '')
+// --- API base resolution (runtime-overridable, no rebuild) -------------------
+// Priority: in-browser override (localStorage) > build-time VITE_API_BASE > '/api'.
+// The override lets the DEPLOYED app be repointed at a new backend/tunnel URL
+// from the UI (hidden Data-source dialog) with no redeploy — it applies on reload.
+// NOTE: a direct cross-origin override needs the backend to send credentialed CORS
+// + a SameSite=None;Secure cookie. The default '/api' is same-origin (Vite proxy in
+// dev, vercel.json rewrite in prod) and needs neither.
+const OVERRIDE_KEY = 'timedeo-api-base'
+
+function readOverride() {
+  try {
+    return (localStorage.getItem(OVERRIDE_KEY) || '').trim()
+  } catch {
+    return ''
+  }
+}
+
+export function getApiOverride() {
+  return readOverride()
+}
+
+export function setApiOverride(url) {
+  try {
+    localStorage.setItem(OVERRIDE_KEY, String(url).trim().replace(/\/+$/, ''))
+  } catch {
+    /* ignore private-mode storage errors */
+  }
+}
+
+export function clearApiOverride() {
+  try {
+    localStorage.removeItem(OVERRIDE_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
+// Resolved once per load; changing the override takes effect on reload.
+export const API_BASE = (readOverride() || import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '')
 
 async function request(path, { method = 'GET', body, params } = {}) {
-  let url = BASE + path
+  let url = API_BASE + path
   if (params) {
     const qs = new URLSearchParams(
       Object.entries(params).filter(([, v]) => v != null && v !== ''),
