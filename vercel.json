@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://bridge-supposed-net-wheat.trycloudflare.com/timedeo/:path*"
+      "destination": "https://liked-thesaurus-trades-usual.trycloudflare.com/timedeo/:path*"
     },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
