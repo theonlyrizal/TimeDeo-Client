@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://tsunami-nowhere-findlaw-standard.trycloudflare.com/timedeo/:path*"
+      "destination": "https://kenneth-organised-insertion-orders.trycloudflare.com/timedeo/:path*"
     },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
